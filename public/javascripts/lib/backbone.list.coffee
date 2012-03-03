@@ -9,22 +9,22 @@ List = Backbone.List = Backbone.View.extend {
 
   initialize: -> 
     @collection.bind 'add', @addItem, @
+    @collection.bind 'reset', @resetList, @
 
   render: ->
     unless @template?
       jQuery.ajax {
         url: './public/javascripts/templates/list.template'
         success: (result) =>
-          @template = result.toString()
+          @template = result
         async: false
       }
     $(@el).html( _.template( @template, {collection: @collection} ) )
 
-  events: {
-    "click .add" : "addItem"
-  }
-
   addItem: (e) ->
+    @render()
+
+  resetList: (e) ->
     @render()
 
 }

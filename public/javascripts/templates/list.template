@@ -1,1 +1,1 @@
-<% collection.each(function(model) { %> <li><%= model.get('text') %></li> <% }); %>
+<% collection.each(function(model) { %> <li id="<%= model.id ? model.id : model.cid %>" ><%= model.get('text') %></li> <% }); %>

@@ -6,7 +6,8 @@
     className: "List",
     id: "list",
     initialize: function() {
-      return this.collection.bind('add', this.addItem, this);
+      this.collection.bind('add', this.addItem, this);
+      return this.collection.bind('reset', this.resetList, this);
     },
     render: function() {
       var _this = this;
@@ -14,7 +15,7 @@
         jQuery.ajax({
           url: './public/javascripts/templates/list.template',
           success: function(result) {
-            return _this.template = result.toString();
+            return _this.template = result;
           },
           async: false
         });
@@ -23,10 +24,10 @@
         collection: this.collection
       }));
     },
-    events: {
-      "click .add": "addItem"
-    },
     addItem: function(e) {
+      return this.render();
+    },
+    resetList: function(e) {
       return this.render();
     }
   });
