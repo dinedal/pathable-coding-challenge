@@ -9,27 +9,37 @@ List = Backbone.List = Backbone.View.extend {
 
   initialize: -> 
     @itemType = @options.itemType || ListItemView
+    @selectable = @options.selectable
     @collection.bind 'add', @render, @
     @collection.bind 'reset', @render, @
-    @collection.bind 'remove', @render, @
-
+    @collection.bind 'remove', @_removeItem, @
 
   render: ->
     @views = @collection.map (model) =>
-      new @itemType({model:model})
+      old_view = @findView(model)
+      if old_view?
+        old_view
+      else
+        new @itemType({model:model, selectable:@selectable})
     $(@el).html( _.map @views, (view) -> 
       view.render().el
     )
     @
 
-  generateViews: ->
-    @views = @collection.map (model) =>
-      new @itemType({model:model})
+  _removeItem: ->
+    if @selectable and @selected?
+      @selected = undefined
+    @render()
 
   findView: (param) ->
     param = param.id if param.id?
     param = param.cid if param.cid?
     _.find(@views, (view) -> (view.cid == param) || (view.model.cid == param) || (view.model.id == param))
+
+  select: (param) ->
+    if @selectable
+      @selected = @findView(param)
+
 }
   
 ListItemView = Backbone.View.extend {
