@@ -70,7 +70,9 @@ List = Backbone.List = Backbone.View.extend {
   findView: (param) ->
     param = param.id if param.id?
     param = param.cid if param.cid?
-    _.find(@views, (view) -> (view.cid == param) || (view.model.cid == param) || (view.model.id == param))
+    _.find(@views, (view) ->  (view.cid == param) ||
+                              (view.model.cid == param) ||
+                              (view.model.id == param))
 
   select: (param) ->
     if @selectable
@@ -78,12 +80,17 @@ List = Backbone.List = Backbone.View.extend {
 
 }
   
-ListItemView = Backbone.View.extend {
+ListItemView = List.extend {
 
   tagName: "li"
 
+  constructor: ->
+    @events = _.extend( {}, List.prototype.events, @events)
+    List.prototype.constructor.apply( @, arguments)
+
   initialize: ->
     @list = @options.list
+    @delegateEvents()
 
 
   render: ->
@@ -94,5 +101,8 @@ ListItemView = Backbone.View.extend {
 
   _remove: ->
     @list.collection.remove(@model);
+
+  trigger: ->
+    @list.trigger.apply(@list, arguments)
 
 }

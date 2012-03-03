@@ -79,10 +79,15 @@
     }
   });
 
-  ListItemView = Backbone.View.extend({
+  ListItemView = List.extend({
     tagName: "li",
+    constructor: function() {
+      this.events = _.extend({}, List.prototype.events, this.events);
+      return List.prototype.constructor.apply(this, arguments);
+    },
     initialize: function() {
-      return this.list = this.options.list;
+      this.list = this.options.list;
+      return this.delegateEvents();
     },
     render: function() {
       $(this.el).html(this.model.get('text') || "");
@@ -90,6 +95,9 @@
     },
     _remove: function() {
       return this.list.collection.remove(this.model);
+    },
+    trigger: function() {
+      return this.list.trigger.apply(this.list, arguments);
     }
   });
 
