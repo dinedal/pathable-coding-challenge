@@ -10,13 +10,14 @@ List = Backbone.List = Backbone.View.extend {
   initialize: -> 
     @itemType = @options.itemType || ListItemView
     @selectable = @options.selectable
-    if @options.tagName?
-      @tagName = @options.tagName
-      if @tagName == 'div'
-        @itemTagName = @tagName
+
+    if @tagName == 'div'
+      @itemTagName = 'div'
 
     if @options.itemOptions?
       @itemTagName = @options.itemOptions.tagName
+      if @itemTagName != 'div' and @itemTagName != 'li'
+        @wrapperTag = "li"
 
     @collection.bind 'add', @_addItem, @
     @collection.bind 'reset', @_reset, @
@@ -24,16 +25,28 @@ List = Backbone.List = Backbone.View.extend {
     @generateViews()
 
   render: ->
-    @$el = $(@el).html( _.map @views, (view) ->
-      view.render().el
-    )
+    @$el = unless @wrapperTag == undefined
+      _.map @views, (view) =>
+        $(@el).append "<#{@wrapperTag}></#{@wrapperTag}>"
+        $(@el).children().first().append(view.render().el)
+      $(@el)
+    else
+      $(@el).html( _.map @views, (view) ->
+        view.render().el
+      )
     @
 
   generateViews: ->
     @views = @collection.map (model) => @newListItem(model)
 
   newListItem: (model) ->
-    new @itemType({model:model, selectable:@selectable, tagName:@itemTagName})
+    new @itemType({
+      model:model,
+      selectable:@selectable,
+      tagName:@itemTagName,
+      childTag:@itemChildTag,
+      list:@
+    })
 
   _removeItem: ->
     if @selectable and @selected?
@@ -71,27 +84,15 @@ ListItemView = Backbone.View.extend {
 
   initialize: ->
     @list = @options.list
-    if @options.tagName?
-      if @options.tagName == 'a'
-        @child_tag = 'a'
-      else
-        @tagName = @options.tagName
 
 
   render: ->
-    if @child_tag?
-      $(this.el).html(
-        "<#{@child_tag}>"+
-        this.model.get('text')+
-        "</#{@child_tag}>"
-      );
-    else
-      $(this.el).html(
-        this.model.get('text')
-      );
+    $(@el).html(
+      @model.get('text') || ""
+    );
     @
 
   _remove: ->
-    @list.collection.remove(this.model);
+    @list.collection.remove(@model);
 
 }

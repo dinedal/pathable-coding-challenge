@@ -8,12 +8,12 @@
     initialize: function() {
       this.itemType = this.options.itemType || ListItemView;
       this.selectable = this.options.selectable;
-      if (this.options.tagName != null) {
-        this.tagName = this.options.tagName;
-        if (this.tagName === 'div') this.itemTagName = this.tagName;
-      }
+      if (this.tagName === 'div') this.itemTagName = 'div';
       if (this.options.itemOptions != null) {
         this.itemTagName = this.options.itemOptions.tagName;
+        if (this.itemTagName !== 'div' && this.itemTagName !== 'li') {
+          this.wrapperTag = "li";
+        }
       }
       this.collection.bind('add', this._addItem, this);
       this.collection.bind('reset', this._reset, this);
@@ -21,7 +21,11 @@
       return this.generateViews();
     },
     render: function() {
-      this.$el = $(this.el).html(_.map(this.views, function(view) {
+      var _this = this;
+      this.$el = this.wrapperTag !== void 0 ? (_.map(this.views, function(view) {
+        $(_this.el).append("<" + _this.wrapperTag + "></" + _this.wrapperTag + ">");
+        return $(_this.el).children().first().append(view.render().el);
+      }), $(this.el)) : $(this.el).html(_.map(this.views, function(view) {
         return view.render().el;
       }));
       return this;
@@ -36,7 +40,9 @@
       return new this.itemType({
         model: model,
         selectable: this.selectable,
-        tagName: this.itemTagName
+        tagName: this.itemTagName,
+        childTag: this.itemChildTag,
+        list: this
       });
     },
     _removeItem: function() {
@@ -76,21 +82,10 @@
   ListItemView = Backbone.View.extend({
     tagName: "li",
     initialize: function() {
-      this.list = this.options.list;
-      if (this.options.tagName != null) {
-        if (this.options.tagName === 'a') {
-          return this.child_tag = 'a';
-        } else {
-          return this.tagName = this.options.tagName;
-        }
-      }
+      return this.list = this.options.list;
     },
     render: function() {
-      if (this.child_tag != null) {
-        $(this.el).html(("<" + this.child_tag + ">") + this.model.get('text') + ("</" + this.child_tag + ">"));
-      } else {
-        $(this.el).html(this.model.get('text'));
-      }
+      $(this.el).html(this.model.get('text') || "");
       return this;
     },
     _remove: function() {
