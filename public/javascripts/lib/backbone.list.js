@@ -9,7 +9,17 @@
       return this.collection.bind('add', this.addItem, this);
     },
     render: function() {
-      return $(this.el).html(_.template($("#list_template").html(), {
+      var _this = this;
+      if (this.template == null) {
+        jQuery.ajax({
+          url: './public/javascripts/templates/list.template',
+          success: function(result) {
+            return _this.template = result.toString();
+          },
+          async: false
+        });
+      }
+      return $(this.el).html(_.template(this.template, {
         collection: this.collection
       }));
     },

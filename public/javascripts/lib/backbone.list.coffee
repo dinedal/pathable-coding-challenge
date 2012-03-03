@@ -11,7 +11,14 @@ List = Backbone.List = Backbone.View.extend {
     @collection.bind 'add', @addItem, @
 
   render: ->
-    $(@el).html( _.template( $("#list_template").html(), {collection: @collection} ) )
+    unless @template?
+      jQuery.ajax {
+        url: './public/javascripts/templates/list.template'
+        success: (result) =>
+          @template = result.toString()
+        async: false
+      }
+    $(@el).html( _.template( @template, {collection: @collection} ) )
 
   events: {
     "click .add" : "addItem"
