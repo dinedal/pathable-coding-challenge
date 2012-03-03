@@ -8,10 +8,17 @@ List = Backbone.List = Backbone.View.extend {
   id: "list"
 
   initialize: -> 
-    @render()
+    @collection.bind 'add', @addItem, @
 
   render: ->
     $(@el).html( _.template( $("#list_template").html(), {collection: @collection} ) )
+
+  events: {
+    "click .add" : "addItem"
+  }
+
+  addItem: (e) ->
+    @render()
 
 }
   
