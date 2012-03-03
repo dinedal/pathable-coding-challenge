@@ -6,29 +6,18 @@
     className: "List",
     id: "list",
     initialize: function() {
-      this.collection.bind('add', this.addItem, this);
-      return this.collection.bind('reset', this.resetList, this);
+      this.itemType = this.options.itemType;
+      this.collection.bind('add', this.render, this);
+      this.collection.bind('reset', this.render, this);
+      return this.collection.bind('remove', this.render, this);
     },
     render: function() {
       var _this = this;
-      if (this.template == null) {
-        jQuery.ajax({
-          url: './public/javascripts/templates/list.template',
-          success: function(result) {
-            return _this.template = result;
-          },
-          async: false
-        });
-      }
-      return $(this.el).html(_.template(this.template, {
-        collection: this.collection
+      return $(this.el).html(this.collection.map(function(model) {
+        return new _this.itemType({
+          model: model
+        }).render().el;
       }));
-    },
-    addItem: function(e) {
-      return this.render();
-    },
-    resetList: function(e) {
-      return this.render();
     }
   });
 
